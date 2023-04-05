@@ -11,8 +11,6 @@ COPY my-app/package*.json ./
 
 # Install app dependencies
 RUN npm install
-RUN npm update
-RUN npm audit fix --force
 
 # Copy the rest of the app source code to the container
 COPY ./my-app .
