@@ -1,8 +1,6 @@
 # Use an official Node.js runtime as a parent image
 FROM node:17-alpine
 
-RUN apk update && apk upgrade
-
 # Set the working directory to /app
 WORKDIR /app
 
