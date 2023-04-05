@@ -9,7 +9,7 @@ COPY my-app/package*.json ./
 
 # Install app dependencies
 RUN npm install
-RUN npm update
+RUN npm install --package-lock
 
 # Copy the rest of the app source code to the container
 COPY ./my-app .
