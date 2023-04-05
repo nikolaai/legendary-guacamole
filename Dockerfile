@@ -13,7 +13,7 @@ COPY my-app/package*.json ./
 RUN npm install
 
 # Copy the rest of the app source code to the container
-COPY my-app/* .
+COPY ./my-app .
 
 # Expose port 3000
 EXPOSE 3000
