@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Build and Push Docker Image
 
 # Controls when the workflow will run
 on:
@@ -8,29 +8,88 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
+    types: [ closed ]
     branches: [ "main" ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  GHCR_USERNAME: nikolaai
+  GHCR_REPOSITORY: legendary-guacamole
+  DOCKER_BUILDKIT: 1
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  build-and-push:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    if: github.event.pull_request.merged == true
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: main
+      
+      - name: Set Docker image tag
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          TAG=$(date +%y%m%d.%H%M%S)
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+      # - name: Build Docker image
+      #   run: docker build -t ghcr.io/$GHCR_USERNAME/$GHCR_REPOSITORY:${{ env.TAG }} -t ghcr.io/$GHCR_USERNAME/$GHCR_REPOSITORY:latest --progress=plain .
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/$GHCR_USERNAME/$GHCR_REPOSITORY:${{ env.TAG }}
+            ghcr.io/$GHCR_USERNAME/$GHCR_REPOSITORY:latest
+          build-args:
+            REACT_APP_API_URL=https://example.com/api
+            REACT_APP_ENVIRONMENT=dev1
+
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2.0.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Docker image to GitHub Container Registry
+        run: |
+          IMAGE_TAG="ghcr.io/$GHCR_USERNAME/$GHCR_REPOSITORY:${{ env.TAG }}"
+          docker push $IMAGE_TAG
+          docker push ghcr.io/$GHCR_USERNAME/$GHCR_REPOSITORY:latest
+
+      - name: Scan Docker image with trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/nikolaai/$GHCR_REPOSITORY:${{ env.TAG }}
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+
+    # # The type of runner that the job will run on
+    # runs-on: ubuntu-latest
+
+    # # Steps represent a sequence of tasks that will be executed as part of the job
+    # steps:
+    #   # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    #   - uses: actions/checkout@v3
+
+    #   # Runs a single command using the runners shell
+    #   - name: Run a one-line script
+    #     run: echo Hello, world!
+
+    #   # Runs a set of commands using the runners shell
+    #   - name: Run a multi-line script
+    #     run: |
+    #       echo Add other actions to build,
+    #       echo test, and deploy your project.
