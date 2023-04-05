@@ -4,16 +4,16 @@ FROM node:17-alpine
 RUN apk update && apk upgrade
 
 # Set the working directory to /app
-WORKDIR /my-app
+WORKDIR /app
 
 # Copy the package.json and package-lock.json files to the container
-COPY package*.json ./
+COPY my-app/package*.json ./
 
 # Install app dependencies
 RUN npm install
 
 # Copy the rest of the app source code to the container
-COPY . .
+COPY my-app/* .
 
 # Expose port 3000
 EXPOSE 3000
