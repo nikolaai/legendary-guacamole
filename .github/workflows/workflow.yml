@@ -6,9 +6,9 @@ name: Build and Push Docker Image
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    # branches: [ "main" ]
   pull_request:
-    types: [ closed ]
+    types: [ opened ]
     branches: [ "main" ]
 
   # Allows you to run this workflow manually from the Actions tab
@@ -24,7 +24,7 @@ jobs:
   # This workflow contains a single job called "build"
   build-and-push:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
+    # if: github.event.pull_request.merged == true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
