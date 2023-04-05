@@ -45,8 +45,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/$GHCR_USERNAME/$GHCR_REPOSITORY:${{ env.TAG }}
-            ghcr.io/$GHCR_USERNAME/$GHCR_REPOSITORY:latest
+            ghcr.io/${ github.repository_owner }/${ github.repository }:${{ env.TAG }}
+            ghcr.io/${ github.repository_owner }/${ github.repository }:latest
           build-args:
             REACT_APP_API_URL=https://example.com/api
             REACT_APP_ENVIRONMENT=dev1
