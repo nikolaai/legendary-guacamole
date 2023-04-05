@@ -9,6 +9,7 @@ COPY my-app/package*.json ./
 
 # Install app dependencies
 RUN npm install
+RUN npm update
 
 # Copy the rest of the app source code to the container
 COPY ./my-app .
