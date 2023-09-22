@@ -23,7 +23,7 @@ env:
 jobs:
   # This workflow contains a single job called "build"
   build-and-push:
-    runs-on: arm64
+    runs-on: ubuntu-latest
     # if: github.event.pull_request.merged == true
     steps:
       - name: Checkout repository
